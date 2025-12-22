@@ -25,6 +25,45 @@
 
         <div class="separator"></div>
 
+        <button class="btn-tool" onclick="openProject()">📂 Open</button>
+        <button class="btn-tool" onclick="saveProject()">💾 Save</button>
+        <button class="btn-tool" onclick="saveProjectAs()">💾 Save As</button>
+
+        <div class="separator"></div>
+
+        <button
+          id="robot-settings-btn"
+          class="btn-tool"
+          onclick="openRobotSettings()"
+        >
+          ⚙ Robot Settings
+        </button>
+
+        <div class="separator"></div>
+
+        <div class="angle-control">
+          <span>Angle:</span>
+          <input
+            type="range"
+            id="angle-slider"
+            min="0"
+            max="360"
+            value="0"
+            oninput="updateRobotAngle(this.value)"
+          />
+          <input
+            type="number"
+            id="angle-input"
+            min="0"
+            max="360"
+            value="0"
+            onchange="handleAngleInput(this.value)"
+            placeholder="0°"
+          />
+        </div>
+
+        <div class="separator"></div>
+
         <div class="canvas-settings">
           <span>Canvas: </span>
           <input type="number" id="canvas-w" value="800" />
@@ -85,6 +124,101 @@
         </div>
       </section>
     </main>
+
+    <!-- Robot Settings Modal -->
+    <div id="robot-settings-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Robot Settings</h2>
+          <button class="modal-close" onclick="closeRobotSettings()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="sensors-section">
+            <h3>Light Sensors (วัดแสง)</h3>
+            <p class="info-text">
+              Maximum 25 sensors. Used for line following.
+            </p>
+
+            <div class="sensor-preview-container">
+              <h4>Sensor Preview</h4>
+              <div id="sensor-preview" class="sensor-preview">
+                <svg
+                  id="preview-svg"
+                  viewBox="0 0 50 50"
+                  width="200"
+                  height="200"
+                >
+                  <rect
+                    x="0"
+                    y="0"
+                    width="50"
+                    height="50"
+                    fill="#ff4757"
+                    stroke="#333"
+                    stroke-width="1"
+                  />
+                  <rect
+                    x="5"
+                    y="0"
+                    width="10"
+                    height="15"
+                    fill="#ff"
+                    stroke="#333"
+                    stroke-width="1"
+                  />
+                  <rect
+                    x="5"
+                    y="35"
+                    width="10"
+                    height="15"
+                    fill="#ff"
+                    stroke="#333"
+                    stroke-width="1"
+                  />
+                  <text
+                    x="25"
+                    y="28"
+                    text-anchor="middle"
+                    fill="white"
+                    font-size="8"
+                    font-weight="bold"
+                  >
+                    ROBOT
+                  </text>
+                </svg>
+              </div>
+            </div>
+
+            <div class="sensor-controls">
+              <h4>Add Sensor</h4>
+              <button class="btn-add-sensor" onclick="addSensorToList()">
+                + Add Sensor
+              </button>
+            </div>
+
+            <div class="sensors-list">
+              <h4>Sensors List (<span id="sensor-count">0</span>/25)</h4>
+              <div id="sensors-container" class="sensors-container"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-primary" onclick="closeRobotSettings()">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <input
+      type="file"
+      id="file-input"
+      accept=".json"
+      style="display: none"
+      onchange="loadProject(this)"
+    />
 
     <script src="script.js" defer></script>
   </body>
