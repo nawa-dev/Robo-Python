@@ -1,144 +1,176 @@
-// --- 1. การจัดการ Layout (Resizer) ---
-const resizer = document.getElementById("drag-resizer");
-const editorPane = document.querySelector(".editor-pane");
+/**
+ * ROBOT IDE SIMULATOR - Core Script (Updated with Drag Boundaries)
+ */
 
-resizer.addEventListener("mousedown", (e) => {
-  document.addEventListener("mousemove", resizePanes);
-  document.addEventListener("mouseup", () => {
-    document.removeEventListener("mousemove", resizePanes);
+// --- 1. เริ่มต้นการทำงานของ Monaco Editor ---
+let editor;
+require.config({
+  paths: {
+    vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs",
+  },
+});
+require(["vs/editor/editor.main"], function () {
+  editor = monaco.editor.create(document.getElementById("monaco-container"), {
+    value: [
+      "for (var i = 0; i < 4; i++) {",
+      "  motor(60, 60);",
+      "  delay(1000);",
+      "  motor(60, 20);",
+      "  delay(1000);",
+      "}",
+      "motor(0, 0);",
+    ].join("\n"),
+    language: "javascript",
+    theme: "vs-dark",
+    automaticLayout: true,
+    fontSize: 16,
+    minimap: { enabled: false },
   });
 });
 
-function resizePanes(e) {
-  const newWidth = (e.clientX / window.innerWidth) * 100;
+// --- 2. ระบบ Resizers ---
+const resizerV = document.getElementById("drag-resizer");
+const resizerH = document.getElementById("h-drag-resizer");
+const editorPane = document.querySelector(".editor-pane");
+const consolePane = document.querySelector(".console-pane");
+
+resizerV.addEventListener("mousedown", () => {
+  document.addEventListener("mousemove", resizeVertical);
+  document.addEventListener("mouseup", () =>
+    document.removeEventListener("mousemove", resizeVertical)
+  );
+});
+
+function resizeVertical(e) {
+  let newWidth = (e.clientX / window.innerWidth) * 100;
   if (newWidth > 15 && newWidth < 85) {
     editorPane.style.width = newWidth + "%";
   }
 }
 
-// --- 2. ตัวแปรสถานะเริ่มต้น ---
+resizerH.addEventListener("mousedown", () => {
+  document.addEventListener("mousemove", resizeHorizontal);
+  document.addEventListener("mouseup", () =>
+    document.removeEventListener("mousemove", resizeHorizontal)
+  );
+});
+
+function resizeHorizontal(e) {
+  const rect = editorPane.getBoundingClientRect();
+  let newHeight = rect.bottom - e.clientY;
+  if (newHeight > 50 && newHeight < rect.height - 100) {
+    consolePane.style.height = newHeight + "px";
+  }
+}
+
+// --- 3. ตัวแปรสถานะหุ่นยนต์ ---
 const robot = document.getElementById("robot");
 const canvasArea = document.getElementById("canvas-area");
 const statusDiv = document.getElementById("status");
 
-let robotX = 100;
-let robotY = 100;
-let angle = 0;
-let motorL = 0;
-let motorR = 0;
-let isRunning = false;
-let isDragging = false;
-let myInterpreter = null;
+let robotX = 100,
+  robotY = 100,
+  angle = 0;
+let motorL = 0,
+  motorR = 0;
+let isRunning = false,
+  isDragging = false,
+  myInterpreter = null;
 
-// --- 3. ระบบ Drag & Drop ---
-robot.addEventListener("mousedown", (e) => {
-  if (isRunning) return; // ห้ามลากขณะโปรแกรมทำงาน
-  isDragging = true;
-  robot.style.transition = "none";
+// --- 4. ระบบลากและวาง (Drag & Drop) - ปรับปรุงเพื่อจำกัดขอบเขต ---
+robot.addEventListener("mousedown", () => {
+  if (!isRunning) isDragging = true;
 });
 
-window.addEventListener("mouseup", () => {
-  isDragging = false;
-});
+window.addEventListener("mouseup", () => (isDragging = false));
 
 window.addEventListener("mousemove", (e) => {
   if (!isDragging) return;
   const rect = canvasArea.getBoundingClientRect();
 
-  // คำนวณให้หุ่นยนต์อยู่กึ่งกลางเมาส์ (หุ่นขนาด 50x50 จึงลบ 25)
-  robotX = e.clientX - rect.left - 25;
-  robotY = e.clientY - rect.top - 25;
+  // คำนวณตำแหน่งที่ต้องการ (หักลบ 25 เพื่อให้เมาส์อยู่กลางตัวหุ่นยนต์)
+  let nextX = e.clientX - rect.left - 25;
+  let nextY = e.clientY - rect.top - 25;
+
+  // จำกัดขอบเขตไม่ให้ออกนอก CanvasArea
+  const maxX = canvasArea.offsetWidth - 50; // 50 คือความกว้างหุ่นยนต์
+  const maxY = canvasArea.offsetHeight - 50; // 50 คือความสูงหุ่นยนต์
+
+  // ใช้ Math.max และ Math.min เพื่อขังค่าไว้ในขอบเขต 0 ถึง max
+  robotX = Math.max(0, Math.min(nextX, maxX));
+  robotY = Math.max(0, Math.min(nextY, maxY));
 
   updateRobotDOM();
 });
 
-// --- 4. ฟังก์ชันอัปเดตการแสดงผล (UI) ---
 function updateRobotDOM() {
   robot.style.left = robotX + "px";
   robot.style.top = robotY + "px";
   robot.style.transform = `rotate(${angle}deg)`;
 }
 
-function updateCanvasSize() {
-  const w = document.getElementById("canvas-w").value;
-  const h = document.getElementById("canvas-h").value;
-
-  if (w > 0 && h > 0) {
-    canvasArea.style.width = w + "px";
-    canvasArea.style.height = h + "px";
-  }
-}
-
-// --- 5. ระบบจำลองทางกายภาพ (Physics Loop) ---
+// --- 5. ระบบ Physics & Collision ---
 function updatePhysics() {
   if (isRunning && !isDragging) {
-    // คำนวณความเร็วการหมุน
-    const turnSpeed = (motorL - motorR) * 0.05;
-    angle += turnSpeed;
-
-    // คำนวณการเคลื่อนที่พุ่งไปข้างหน้า
-    const speed = (motorL + motorR) / 100;
     const rad = angle * (Math.PI / 180);
+    const speed = (motorL + motorR) / 100;
+    const turnSpeed = (motorL - motorR) * 0.05;
 
-    // ตำแหน่งใหม่ที่คาดการณ์
     let nextX = robotX + speed * Math.cos(rad);
     let nextY = robotY + speed * Math.sin(rad);
+    angle += turnSpeed;
 
-    const currentW = canvasArea.offsetWidth;
-    const currentH = canvasArea.offsetHeight;
-
-    // ตรวจสอบการชนขอบ (Boundary Check)
     if (
       nextX < 0 ||
-      nextX > currentW - 50 ||
+      nextX > canvasArea.offsetWidth - 50 ||
       nextY < 0 ||
-      nextY > currentH - 50
+      nextY > canvasArea.offsetHeight - 50
     ) {
       stopProgram();
-      statusDiv.innerText = "Status: Collided with Wall!";
-
-      // ปรับตำแหน่งให้ชิดขอบพอดี ไม่ให้ทะลุออกไป
-      robotX = Math.max(0, Math.min(nextX, currentW - 50));
-      robotY = Math.max(0, Math.min(nextY, currentH - 50));
+      logToConsole("Collision Error: Robot hit the wall!", "error");
     } else {
       robotX = nextX;
       robotY = nextY;
     }
-
     updateRobotDOM();
   }
   requestAnimationFrame(updatePhysics);
 }
 
-// --- 6. ระบบ Interpreter (Bridge API) ---
-function initApi(interpreter, globalObject) {
-  // คำสั่ง motor(l, r)
-  interpreter.setProperty(
-    globalObject,
-    "motor",
-    interpreter.createNativeFunction((l, r) => {
-      motorL = l;
-      motorR = r;
-      statusDiv.innerText = `Running: M(${l}, ${r})`;
-    })
-  );
-
-  // คำสั่ง delay(ms)
-  interpreter.setProperty(
-    globalObject,
-    "delay",
-    interpreter.createAsyncFunction((ms, callback) => {
-      setTimeout(callback, ms);
-    })
-  );
+// --- 6. ระบบ Console & Validation ---
+function logToConsole(msg, type = "info") {
+  const output = document.getElementById("console-output");
+  const div = document.createElement("div");
+  div.className = type === "error" ? "log-error" : "log-info";
+  div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  output.appendChild(div);
+  output.scrollTop = output.scrollHeight;
 }
 
-// --- 7. ฟังก์ชันควบคุมโปรแกรม (Run / Stop / Reset) ---
-function runCode() {
-  // หยุดโปรแกรมเดิมก่อนเพื่อเคลียร์สถานะ
-  stopProgram();
+function clearConsole() {
+  document.getElementById("console-output").innerHTML = "";
+}
 
-  const code = document.getElementById("codeEditor").value;
+// --- 7. การควบคุมการรันโค้ด ---
+function runCode() {
+  if (typeof acorn === "undefined") {
+    logToConsole("Error: Acorn library is not loaded yet.", "error");
+    return;
+  }
+  stopProgram();
+  clearConsole();
+
+  const code = editor.getValue();
+
+  try {
+    acorn.parse(code, { ecmaVersion: 2020 });
+    logToConsole("Syntax check passed. Starting execution...", "info");
+  } catch (e) {
+    const line = e.loc ? ` (Line ${e.loc.line})` : "";
+    logToConsole(`Syntax Error${line}: ${e.message}`, "error");
+    statusDiv.innerText = "Status: Code Error";
+    return;
+  }
 
   try {
     myInterpreter = new Interpreter(code, initApi);
@@ -146,22 +178,21 @@ function runCode() {
     statusDiv.innerText = "Status: Running...";
 
     function step() {
-      // ถ้ายังมีโค้ดให้รัน และสถานะยังเป็น isRunning (ไม่ได้กด Stop)
       if (isRunning && myInterpreter && myInterpreter.step()) {
         setTimeout(step, 1);
       } else if (isRunning) {
-        // ถ้าโค้ดรันจนจบเอง
         stopProgram();
-        statusDiv.innerText = "Status: Finished";
+        logToConsole("Program finished.", "info");
       }
     }
     step();
   } catch (e) {
-    alert("Syntax Error: " + e);
+    logToConsole(`Runtime Error: ${e.message}`, "error");
     stopProgram();
   }
 }
 
+// --- 8. ฟังก์ชันช่วยอื่นๆ ---
 function stopProgram() {
   isRunning = false;
   motorL = 0;
@@ -176,40 +207,69 @@ function resetPosition() {
   robotY = 100;
   angle = 0;
   updateRobotDOM();
-  statusDiv.innerText = "Status: Position Reset";
+  logToConsole("Robot position reset.", "info");
 }
 
-// --- เริ่มต้นการทำงานหน้าเว็บ ---
-updatePhysics();
-updateCanvasSize();
-function handleMapChange(select) {
-  const value = select.value;
+function updateCanvasSize() {
+  canvasArea.style.width = document.getElementById("canvas-w").value + "px";
+  canvasArea.style.height = document.getElementById("canvas-h").value + "px";
+}
 
-  if (value === "default") {
-    // คืนค่าเป็นสนามเปล่าสีเทา
+function handleMapChange(select) {
+  if (select.value === "upload") {
+    document.getElementById("map-upload").click();
+  } else {
     canvasArea.style.backgroundImage = "none";
     canvasArea.style.backgroundColor = "#f0f0f0";
-    statusDiv.innerText = "Status: Default map selected";
-  } else if (value === "upload") {
-    // สั่งให้ input file ทำงาน
-    document.getElementById("map-upload").click();
   }
 }
 
 function loadMapFile(input) {
   if (input.files && input.files[0]) {
     const reader = new FileReader();
-
-    reader.onload = function (e) {
-      // ตั้งค่ารูปภาพเป็นพื้นหลัง
+    reader.onload = (e) => {
       canvasArea.style.backgroundImage = `url('${e.target.result}')`;
-      canvasArea.style.backgroundColor = "transparent"; // ล้างสีพื้นหลังเดิม
-      statusDiv.innerText = "Status: Custom map loaded";
+      canvasArea.style.backgroundColor = "transparent";
+      logToConsole("New map loaded successfully.");
     };
-
     reader.readAsDataURL(input.files[0]);
-  } else {
-    // กรณีผู้ใช้กด Cancel ในหน้าต่างเลือกไฟล์ ให้กลับไปเลือก Default
-    document.getElementById("map-select").value = "default";
   }
 }
+
+// --- 9. API Bridge ---
+function initApi(interpreter, globalObject) {
+  const wrapperMotor = function (left, right) {
+    motorL = left;
+    motorR = right;
+    logToConsole(`Motor Command: Left=${left}, Right=${right}`);
+  };
+  interpreter.setProperty(
+    globalObject,
+    "motor",
+    interpreter.createNativeFunction(wrapperMotor)
+  );
+
+  const wrapperLog = function (text) {
+    logToConsole("User Log: " + text);
+  };
+  interpreter.setProperty(
+    globalObject,
+    "log",
+    interpreter.createNativeFunction(wrapperLog)
+  );
+
+  const wrapperDelay = function (ms, callback) {
+    setTimeout(() => {
+      callback();
+    }, ms);
+  };
+  interpreter.setProperty(
+    globalObject,
+    "delay",
+    interpreter.createAsyncFunction(wrapperDelay)
+  );
+}
+
+// เริ่มต้น Loop
+updatePhysics();
+updateCanvasSize();
