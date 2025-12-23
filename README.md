@@ -1,5 +1,3 @@
-// ...existing code...
-
 # 🤖 Robot IDE Simulator
 
 <img width="1919" height="940" alt="image" src="https://github.com/user-attachments/assets/39d0fe29-494f-4955-8ad0-733e7148c2eb" />
