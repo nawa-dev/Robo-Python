@@ -30,12 +30,19 @@ function runCode() {
 
     function step() {
       if (isRunning && myInterpreter) {
-        for (let i = 0; i < 50; i++) {
-          if (!myInterpreter.step()) {
-            stopProgram();
-            logToConsole("Program finished.", "info");
-            return;
+        try {
+          for (let i = 0; i < 50; i++) {
+            if (!myInterpreter.step()) {
+              stopProgram();
+              logToConsole("Program finished.", "info");
+              return;
+            }
           }
+        } catch (e) {
+          // ดักจับ Error ตอนรัน เช่น ReferenceError: move is not defined
+          logToConsole(`Runtime Error: ${e.message}`, "error");
+          stopProgram();
+          return; // หยุดการทำงานทันที
         }
 
         if (isRunning) requestAnimationFrame(step);
