@@ -37,31 +37,28 @@ function createProjectData() {
 }
 
 // --- Save project ---
-function saveProject() {
-  if (currentProjectPath === null) {
-    saveProjectAs();
-    return;
-  }
+// function saveProject() {
+//   if (currentProjectPath === null) {
+//     saveProjectAs();
+//     return;
+//   }
 
-  const projectData = createProjectData();
-  const jsonString = JSON.stringify(projectData, null, 2);
-  const blob = new Blob([jsonString], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = currentProjectPath;
-  a.click();
-  URL.revokeObjectURL(url);
+//   const projectData = createProjectData();
+//   const jsonString = JSON.stringify(projectData, null, 2);
+//   const blob = new Blob([jsonString], { type: "application/json" });
+//   const url = URL.createObjectURL(blob);
+//   const a = document.createElement("a");
+//   a.href = url;
+//   a.download = currentProjectPath;
+//   a.click();
+//   URL.revokeObjectURL(url);
 
-  logToConsole(`Project saved: ${currentProjectPath}`, "info");
-}
+//   logToConsole(`Project saved: ${currentProjectPath}`, "info");
+// }
 
 // --- Save as ---
 function saveProjectAs() {
-  const projectName = prompt(
-    "Enter project name (without .json):",
-    currentProjectName
-  );
+  const projectName = prompt("Enter project name", currentProjectName);
   if (!projectName) return;
 
   currentProjectName = projectName;
