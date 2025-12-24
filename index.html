@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Robot IDE Simulator Pro</title>
     <link rel="stylesheet" href="style.css" />
-
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
     <script src="src/acorn.min.js"></script>
     <script src="https://neil.fraser.name/software/JS-Interpreter/acorn_interpreter.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
@@ -22,19 +25,26 @@
     <header class="toolbar">
       <div class="logo">ROBOT IDE</div>
       <div class="actions">
-        <button id="run-btn" class="btn-run" onclick="runCode()">▶ Run</button>
+        <button id="run-btn" class="btn-run" onclick="runCode()">
+          <i class="fas fa-play"></i> Run
+        </button>
         <button id="stop-btn" class="btn-stop" onclick="stopProgram()">
-          ■ Stop
+          <i class="fas fa-stop"></i> Stop
         </button>
         <button id="reset-btn" class="btn-reset" onclick="resetPosition()">
-          ↺ Reset
+          <i class="fas fa-undo"></i> Reset
         </button>
 
         <div class="separator"></div>
-
-        <button class="btn-tool" onclick="newProject()">📄 New</button>
-        <button class="btn-tool" onclick="openProject()">📂 Open</button>
-        <button class="btn-tool" onclick="saveProjectAs()">⬇️ Download</button>
+        <button class="btn-tool" onclick="newProject()">
+          <i class="fas fa-file"></i> New
+        </button>
+        <button class="btn-tool" onclick="openProject()">
+          <i class="fas fa-folder-open"></i> Open
+        </button>
+        <button class="btn-tool" onclick="saveProjectAs()">
+          <i class="fas fa-download"></i> Export
+        </button>
         <!-- <button class="btn-tool" onclick="saveProjectAs()">💾 Save As</button> -->
 
         <div class="separator"></div>
@@ -44,7 +54,7 @@
           class="btn-tool"
           onclick="openRobotSettings()"
         >
-          ⚙ Robot Settings
+          <i class="fa-solid fa-gear"></i> Robot Settings
         </button>
 
         <div class="separator"></div>
@@ -152,10 +162,10 @@
 
         <div class="modal-body">
           <div class="sensors-section">
-            <h3>Light Sensors (วัดแสง)</h3>
+            <!-- <h3>Light Sensors (วัดแสง)</h3>
             <p class="info-text">
               Maximum 25 sensors. Used for line following.
-            </p>
+            </p> -->
 
             <div class="sensor-preview-container">
               <h4>Sensor Preview</h4>
@@ -207,15 +217,18 @@
               </div>
             </div>
 
-            <div class="sensor-controls">
+            <!-- <div class="sensor-controls">
               <h4>Add Sensor</h4>
+            </div> -->
+
+            <div class="sensors-list">
+              <!-- <h4 style="padding: 0%">
+                Sensors List (<span id="sensor-count">0</span>/25)
+              </h4> -->
               <button class="btn-add-sensor" onclick="addSensorToList()">
                 + Add Sensor
               </button>
-            </div>
 
-            <div class="sensors-list">
-              <h4>Sensors List (<span id="sensor-count">0</span>/25)</h4>
               <div id="sensors-container" class="sensors-container"></div>
             </div>
           </div>

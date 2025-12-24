@@ -101,9 +101,9 @@ function updateSensorPreview() {
 // --- Render sensors list ---
 function renderSensorsList() {
   const container = document.getElementById("sensors-container");
-  const count = document.getElementById("sensor-count");
+  // const count = document.getElementById("sensor-count");
 
-  count.innerText = sensors.length;
+  // count.innerText = sensors.length;
 
   if (sensors.length === 0) {
     container.innerHTML =
@@ -117,7 +117,7 @@ function renderSensorsList() {
     <div class="sensor-item ${sensor.isNew ? "sensor-item-new" : ""}">
       <div class="sensor-item-info">
         <div class="sensor-item-label">
-          ${sensor.name || "Light Sensor " + (index + 1)}
+          ${"Light Sensor " + index}
         </div>
         <div class="sensor-item-coords">
           <div class="sensor-coord-input">
