@@ -2,8 +2,7 @@
 
 <img width="1919" height="904" alt="image" src="https://github.com/user-attachments/assets/9a616a00-e935-4d67-ad6c-5ff9e5b611f1" />
 
-
-A web-based integrated development environment (IDE) for programming robot simulations. Write JavaScript code to control a virtual robot with sensors, motors, and real-time visualization.
+เว็บจำลองการเขียนโปรแกรมควบคุมหุ่นยนต์ ด้วยภาษา Javascript
 
 ![Robot Simulator](https://img.shields.io/badge/Status-Active-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-blue)
