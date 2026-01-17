@@ -4,6 +4,7 @@
 
 // --- 1. DifferentialDrive Engine ---
 // ทำหน้าที่คำนวณจลนศาสตร์และความเร่งของมอเตอร์
+let motorPos = 0;
 function DifferentialDrive(opts) {
   opts = opts || {};
   this.wheelBase = opts.wheelBase || 40; // ระยะห่างระหว่างล้อ (px)
@@ -52,7 +53,7 @@ DifferentialDrive.prototype.step = function (pose, dt) {
 const robotDrive = new DifferentialDrive({
   wheelBase: 42,
   maxAccel: 400,
-  axisOffset: 0, // <--- ปรับตำแหน่งล้อตรงนี้
+  axisOffset: motorPos, // <--- ปรับตำแหน่งล้อตรงนี้
 });
 let lastPhysicTime = 0;
 
@@ -68,19 +69,18 @@ function updatePhysics(timestamp) {
     robotDrive.setTargets(motorL * 2.5, motorR * 2.5);
 
     // เตรียมสถานะปัจจุบัน (แปลงจาก Global Variables)
+    logToConsole(`Robot angle set to ${motorPos}`, "info");
     let pose = {
-      x:
-        robotX + 25 + robotDrive.axisOffset * Math.cos((angle * Math.PI) / 180),
-      y:
-        robotY + 25 + robotDrive.axisOffset * Math.sin((angle * Math.PI) / 180),
+      x: robotX + 25 + motorPos * Math.cos((angle * Math.PI) / 180),
+      y: robotY + 25 + motorPos * Math.sin((angle * Math.PI) / 180),
       theta: angle * (Math.PI / 180),
     };
 
     // คำนวณ Step ถัดไป
     robotDrive.step(pose, dt);
     // แปลงกลับจาก "กึ่งกลางเพลาล้อ" มาเป็น "มุมบนซ้ายของหุ่นยนต์ (robotX, robotY)"
-    const newCenterX = pose.x - robotDrive.axisOffset * Math.cos(pose.theta);
-    const newCenterY = pose.y - robotDrive.axisOffset * Math.sin(pose.theta);
+    const newCenterX = pose.x - motorPos * Math.cos(pose.theta);
+    const newCenterY = pose.y - motorPos * Math.sin(pose.theta);
     // ตรวจสอบการชนขอบจอ (Collision Detection)
     const nextX = newCenterX - 25;
     const nextY = newCenterY - 25;

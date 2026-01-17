@@ -2,12 +2,6 @@
  * ROBOT IDE SIMULATOR - Core Script
  * Main initialization and UI event handlers
  */
-const drive = new DifferentialDrive({
-  wheelBase: 40,
-  maxAccel: 300,
-  maxSpeed: 200,
-});
-let lastTime = 0;
 
 // --- 1. Monaco Editor Setup ---
 let editor;
@@ -222,8 +216,9 @@ const statusDiv = document.getElementById("status");
 let robotX = 100,
   robotY = 100,
   angle = 0;
-let motorL = 0,
-  motorR = 0;
+
+((motorL = 0), (motorR = 0));
+
 let isRunning = false,
   isDragging = false,
   myInterpreter = null;
@@ -307,6 +302,24 @@ function handleAngleInput(value) {
   document.getElementById("angle-input").value = Math.round(newAngle);
   updateRobotDOM();
   logToConsole(`Robot angle set to ${Math.round(angle)}°`, "info");
+}
+
+function handleMotorPosition(value) {
+  let newPos = parseFloat(value);
+  if (isNaN(newPos)) {
+    document.getElementById("motorPos-input").value = Math.round(motorPos);
+    return;
+  }
+
+  motorPos = newPos;
+  let dPosition = newPos + 20;
+  document.getElementById("motorPos-input").value = Math.round(newPos);
+  document.getElementById("motor-left").setAttribute("x", dPosition);
+  document.getElementById("motor-right").setAttribute("x", dPosition);
+  document.documentElement.style.setProperty("--motorPos", dPosition + "px");
+  updateRobotDOM();
+  testUpdatePos();
+  // logToConsole(`Robot angle set to ${Math.round(motorPos)}`, "info");
 }
 
 function updateRobotAngle(value) {
@@ -432,40 +445,6 @@ function updateTrackBuffer() {
     trackBufferCanvas.height,
   );
   trackBufferCtx.putImageData(imgData, 0, 0);
-}
-
-/**
- * Sample area around a point in track buffer (3x3 or 5x5)
- * Returns normalized brightness 0..1
- */
-function sampleSensorAreaInBuffer(worldX, worldY, sampleSize = 5) {
-  if (!trackBufferCtx) return 0;
-
-  const sx = Math.max(0, Math.floor(worldX - sampleSize / 2));
-  const sy = Math.max(0, Math.floor(worldY - sampleSize / 2));
-  const sw = Math.min(trackBufferCanvas.width - sx, sampleSize);
-  const sh = Math.min(trackBufferCanvas.height - sy, sampleSize);
-
-  if (sw <= 0 || sh <= 0) return 0;
-
-  try {
-    const imgData = trackBufferCtx.getImageData(sx, sy, sw, sh);
-    const data = imgData.data;
-    let totalBrightness = 0;
-
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-      // Luminance approximation (ITU-R BT.709)
-      totalBrightness += 0.299 * r + 0.587 * g + 0.114 * b;
-    }
-
-    const avg = totalBrightness / (sw * sh);
-    return Math.max(0, Math.min(1, avg / 255)); // normalize to 0..1
-  } catch (e) {
-    return 0;
-  }
 }
 
 // Hook run/stop buttons to simulation loop

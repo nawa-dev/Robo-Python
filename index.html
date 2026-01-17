@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
   <head>
     <meta charset="UTF-8" />
@@ -106,9 +106,6 @@
             value="600"
             onchange="updateCanvasSize()"
           />
-          <!-- <button class="btn-tool" onclick="updateCanvasSize()">
-            Set Size
-          </button> -->
 
           <div class="separator"></div>
 
@@ -215,17 +212,12 @@
 
         <div class="modal-body">
           <div class="sensors-section">
-            <!-- <h3>Light Sensors (วัดแสง)</h3>
-            <p class="info-text">
-              Maximum 25 sensors. Used for line following.
-            </p> -->
-
             <div class="sensor-preview-container">
               <h4>Sensor Preview</h4>
               <div id="sensor-preview" class="sensor-preview">
                 <svg
                   id="preview-svg"
-                  viewBox="0 0 50 50"
+                  viewBox="-25 -25 100 100"
                   width="200"
                   height="200"
                 >
@@ -238,24 +230,29 @@
                     stroke="#333"
                     stroke-width="1"
                   />
+
                   <rect
-                    x="5"
-                    y="0"
+                    id="motor-left"
+                    x="20"
+                    y="-10"
                     width="10"
                     height="15"
                     fill="#ff"
                     stroke="#333"
                     stroke-width="1"
                   />
+
                   <rect
-                    x="5"
-                    y="35"
+                    id="motor-right"
+                    x="20"
+                    y="45"
                     width="10"
                     height="15"
                     fill="#ff"
                     stroke="#333"
                     stroke-width="1"
                   />
+
                   <text
                     x="25"
                     y="28"
@@ -269,15 +266,24 @@
                 </svg>
               </div>
             </div>
-
-            <!-- <div class="sensor-controls">
-              <h4>Add Sensor</h4>
-            </div> -->
+            <div>
+              <div class="motorPosition-container">
+                <h4>Wheel Position</h4>
+                <div class="motorPosition-input">
+                  <input
+                    type="number"
+                    id="motorPos-input"
+                    min="-20"
+                    max="20"
+                    value="0"
+                    onchange="handleMotorPosition(this.value)"
+                    placeholder="0°"
+                  />
+                </div>
+              </div>
+            </div>
 
             <div class="sensors-list">
-              <!-- <h4 style="padding: 0%">
-                Sensors List (<span id="sensor-count">0</span>/25)
-              </h4> -->
               <button class="btn-add-sensor" onclick="addSensorToList()">
                 + Add Sensor
               </button>

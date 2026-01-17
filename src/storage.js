@@ -36,27 +36,6 @@ function createProjectData() {
   };
 }
 
-// --- Save project ---
-// function saveProject() {
-//   if (currentProjectPath === null) {
-//     saveProjectAs();
-//     return;
-//   }
-
-//   const projectData = createProjectData();
-//   const jsonString = JSON.stringify(projectData, null, 2);
-//   const blob = new Blob([jsonString], { type: "application/json" });
-//   const url = URL.createObjectURL(blob);
-//   const a = document.createElement("a");
-//   a.href = url;
-//   a.download = currentProjectPath;
-//   a.click();
-//   URL.revokeObjectURL(url);
-
-//   logToConsole(`Project saved: ${currentProjectPath}`, "info");
-// }
-
-// --- Save as ---
 function saveProjectAs() {
   const projectName = prompt("Enter project name", currentProjectName);
   if (!projectName) return;
@@ -237,7 +216,7 @@ function loadProject(inputElement) {
 function newProject() {
   if (
     confirm(
-      "สร้างโปรเจกต์ใหม่ใช่หรือไม่? ข้อมูลที่ไม่ได้เซฟเป็นไฟล์จะหายไปทั้งหมด"
+      "สร้างโปรเจกต์ใหม่ใช่หรือไม่? ข้อมูลที่ไม่ได้เซฟเป็นไฟล์จะหายไปทั้งหมด",
     )
   ) {
     // 1. หยุดการรันโปรแกรมปัจจุบันก่อน

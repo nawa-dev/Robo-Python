@@ -161,7 +161,9 @@ html {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  transition: width 0.3s, height 0.3s;
+  transition:
+    width 0.3s,
+    height 0.3s;
 }
 
 /* Robot */
@@ -189,11 +191,11 @@ html {
 }
 .w-l {
   top: -8px;
-  left: 20px;
+  left: var(--motorPos);
 }
 .w-r {
   bottom: -8px;
-  left: 20px;
+  left: var(--motorPos);
 }
 
 /* อื่นๆ */
@@ -358,6 +360,34 @@ button {
   border: 1px solid #3e3e3e;
 }
 
+.motorPosition-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #1e1e1e;
+  padding-left: 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border: 1px solid #3e3e3e;
+}
+
+.motorPosition-input input {
+  width: 50px;
+  padding: 4px 6px;
+  background: #1e1e1e;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 3px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.motorPosition-input input:focus {
+  border-color: #4caf50;
+  outline: none;
+  box-shadow: 0 0 4px rgba(76, 175, 80, 0.3);
+}
+
 .sensor-preview-container h4 {
   margin: 0 0 10px 0;
   font-size: 13px;
@@ -370,7 +400,7 @@ button {
   background: #f0f0f0;
   padding: 10px;
   border-radius: 4px;
-  min-height: 220px;
+  min-height: 300px;
 }
 
 #preview-svg {
