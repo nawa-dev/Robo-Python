@@ -29,7 +29,7 @@ function updateCanvasImageData() {
           0,
           0,
           canvas.width,
-          canvas.height
+          canvas.height,
         ).data;
         logToConsole("Canvas image data updated.", "info");
       };
@@ -39,7 +39,7 @@ function updateCanvasImageData() {
           0,
           0,
           canvas.width,
-          canvas.height
+          canvas.height,
         ).data;
       };
       img.src = imageUrl;
@@ -49,7 +49,7 @@ function updateCanvasImageData() {
         0,
         0,
         canvas.width,
-        canvas.height
+        canvas.height,
       ).data;
     }
   } else {

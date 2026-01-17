@@ -3,7 +3,7 @@
  * Main initialization and UI event handlers
  */
 
-// --- 1. Monaco Editor Setup ---
+// ส่วนที่ 1: Monaco Editor Setup
 let editor;
 require.config({
   paths: {
@@ -37,8 +37,7 @@ require(["vs/editor/editor.main"], function () {
   setupAutocomplete();
 });
 
-// --- Custom Highlighting for Robot API ---
-// --- Custom Highlighting for Robot API ---
+// ตั้งค่าการไฮไลต์สำหรับ Robot API
 function setupRobotHighlighting(editor) {
   const robotRegex =
     /\b(motor|delay|analogRead|getSensorCount|log)|SW|waitSW\b/g;
@@ -59,14 +58,13 @@ function setupRobotHighlighting(editor) {
       const start = model.getPositionAt(index);
       const end = model.getPositionAt(index + word.length);
 
-      // ส่วนที่เพิ่มเข้ามาเพื่อตรวจสอบ Comment (//) ***
+      // ตรวจสอบว่าบรรทัดนี้เป็นคอมเมนต์หรือไม่
       const lineContent = model.getLineContent(start.lineNumber).trim();
 
-      // ถ้าบรรทัดเริ่มต้นด้วย // หรือบรรทัดว่าง/มีแต่ช่องว่าง ไม่ต้อง Highlight
+      // ถ้าบรรทัดเริ่มต้นด้วย // หรือบรรทัดว่าง ให้ข้ามไป
       if (lineContent.startsWith("//") || lineContent.length === 0) {
         continue;
       }
-      // ************************************************
 
       decorations.push({
         range: new monaco.Range(
@@ -88,7 +86,7 @@ function setupRobotHighlighting(editor) {
   editor.onDidChangeModelContent(updateDecorations);
 }
 
-// --- Autocomplete for Robot API ---
+// ตั้งค่า Autocomplete สำหรับ Robot API
 function setupAutocomplete() {
   const robotAPI = [
     {
@@ -166,7 +164,7 @@ function setupAutocomplete() {
   });
 }
 
-// --- 2. UI Resizers ---
+// ส่วนที่ 2: ตั้งค่า Resizers สำหรับปรับขนาด
 const resizerV = document.getElementById("drag-resizer");
 const resizerH = document.getElementById("h-drag-resizer");
 const editorPane = document.querySelector(".editor-pane");
@@ -201,7 +199,7 @@ function resizeHorizontal(e) {
   }
 }
 
-// --- 4. Robot Drag & Drop ---
+// ส่วนที่ 3: ฟังก์ชันลาก-วาง Robot
 robot.addEventListener("mousedown", () => {
   isDragging = true;
 });
@@ -224,7 +222,7 @@ window.addEventListener("mousemove", (e) => {
   updateRobotDOM();
 });
 
-// --- 5. Robot DOM Update ---
+// ส่วนที่ 4: อัปเดตตำแหน่ง Robot บน DOM
 function updateRobotDOM() {
   robot.style.left = robotX + "px";
   robot.style.top = robotY + "px";
@@ -232,7 +230,7 @@ function updateRobotDOM() {
   updateSensorDots();
 }
 
-// --- 6. Console System ---
+// ส่วนที่ 5: ระบบ Console สำหรับแสดงข้อความ
 function logToConsole(msg, type = "info") {
   const output = document.getElementById("console-output");
   const div = document.createElement("div");
@@ -246,7 +244,7 @@ function clearConsole() {
   document.getElementById("console-output").innerHTML = "";
 }
 
-// --- 7. Angle Control ---
+// ส่วนที่ 6: ควบคุมมุม Robot
 function updateAngleDisplay(value) {
   const angleInput = document.getElementById("angle-input");
   angleInput.value = Math.round(value);
@@ -291,7 +289,6 @@ function handleMotorPosition(value) {
   document.documentElement.style.setProperty("--motorPos", dPosition + "px");
   updateRobotDOM();
   testUpdatePos();
-  // logToConsole(`Robot angle set to ${Math.round(motorPos)}`, "info");
 }
 
 function updateRobotAngle(value) {
@@ -307,7 +304,7 @@ function updateRobotAngle(value) {
   updateRobotDOM();
 }
 
-// --- 8. Initialize System ---
+// ส่วนที่ 7: เริ่มต้นระบบ
 updatePhysics();
 updateCanvasSize();
 setTimeout(() => {
@@ -316,8 +313,8 @@ setTimeout(() => {
 }, 100);
 
 /**
- * ============ CANVAS 2D RENDERER + TRACK BUFFER ============
- * Parallel rendering system: keeps DOM intact but adds Canvas 2D for better fidelity
+ * ระบบการเรนเดอร์ Canvas 2D พร้อม Track Buffer
+ * ระบบการเรนเดอร์แบบขนาน: รักษา DOM ไว้แต่เพิ่ม Canvas 2D เพื่อความแม่นยำที่ดีขึ้น
  */
 
 let canvasRenderer = null;
@@ -328,7 +325,7 @@ function initCanvasRenderer() {
   const canvasArea = document.getElementById("canvas-area");
   if (!canvasArea) return;
 
-  // Create main onscreen canvas
+  // สร้าง Canvas หลักที่มองเห็นได้บนหน้าจอ
   canvasRenderer = document.createElement("canvas");
   canvasRenderer.id = "main-render-canvas";
   canvasRenderer.width = canvasArea.offsetWidth;
@@ -339,7 +336,7 @@ function initCanvasRenderer() {
   canvasRenderer.style.zIndex = "5";
   canvasRenderer.style.cursor = "crosshair";
 
-  // Create hidden track buffer canvas
+  // สร้าง Canvas ที่ซ่อนไว้สำหรับเก็บข้อมูล Track
   trackBufferCanvas = document.createElement("canvas");
   trackBufferCanvas.width = canvasRenderer.width;
   trackBufferCanvas.height = canvasRenderer.height;
@@ -358,23 +355,23 @@ function renderCanvasFrame() {
   const w = canvasRenderer.width;
   const h = canvasRenderer.height;
 
-  // Clear and draw background
+  // ล้าง Canvas และวาดพื้นหลัง
   ctx.fillStyle = "#f0f0f0";
   ctx.fillRect(0, 0, w, h);
 
-  // Draw map if loaded
+  // วาดแผนที่ถ้ามีการโหลด
   if (currentMapImage) {
     ctx.drawImage(currentMapImage, 0, 0, w, h);
   }
 
-  // Draw robot as circle + heading indicator
+  // วาด Robot เป็นวงกลมพร้อมตัวชี้ทิศทาง
   const robotSize = 25;
   ctx.fillStyle = "#2d3436";
   ctx.beginPath();
   ctx.arc(robotX + 25, robotY + 25, robotSize, 0, Math.PI * 2);
   ctx.fill();
 
-  // Draw heading line
+  // วาดเส้นทิศทาง
   const rad = (angle * Math.PI) / 180;
   ctx.strokeStyle = "rgba(255,255,255,0.8)";
   ctx.lineWidth = 3;
@@ -386,7 +383,7 @@ function renderCanvasFrame() {
   );
   ctx.stroke();
 
-  // Draw sensor positions as small dots
+  // วาดตำแหน่งของเซนเซอร์เป็นจุดเล็ก ๆ
   ctx.fillStyle = "rgba(100,200,255,0.6)";
   sensors.forEach((s) => {
     const localX = s.x - 25;
@@ -404,8 +401,8 @@ function renderCanvasFrame() {
 }
 
 /**
- * Update track buffer: copy pixel data from visible canvas for sensor sampling
- * This avoids repeatedly reading from DOM/CSS backgrounds
+ * อัปเดต Track Buffer: คัดลอกข้อมูลพิกเซลจาก Canvas ที่มองเห็นได้
+ * เพื่อให้เซนเซอร์สามารถอ่านข้อมูลได้โดยไม่ต้องอ่านจาก DOM/CSS ซ้ำ ๆ
  */
 function updateTrackBuffer() {
   if (!trackBufferCtx || !canvasRenderer) return;
@@ -419,7 +416,7 @@ function updateTrackBuffer() {
   trackBufferCtx.putImageData(imgData, 0, 0);
 }
 
-// Hook run/stop buttons to simulation loop
+// เชื่อมต่อปุ่ม Run/Stop กับลูปการจำลอง
 const runBtn = document.getElementById("run-btn");
 const stopBtn = document.getElementById("stop-btn");
 
@@ -428,7 +425,7 @@ window.runCode = function () {
   if (typeof originalRunCode === "function") {
     originalRunCode.call(this);
   }
-  // Start RAF loop when user code starts
+  // เริ่มลูป RAF เมื่อโค้ดของผู้ใช้เริ่มทำงาน
   if (typeof startSimulationLoop === "function") {
     startSimulationLoop();
   }
@@ -439,7 +436,7 @@ window.stopProgram = function () {
   if (typeof originalStopProgram === "function") {
     originalStopProgram.call(this);
   }
-  // Stop RAF loop when user code stops
+  // หยุดลูป RAF เมื่อโค้ดของผู้ใช้หยุดทำงาน
   if (typeof stopSimulationLoop === "function") {
     stopSimulationLoop();
   }

@@ -1,14 +1,17 @@
 /**
- * Project Save/Load System
+ * ระบบจัดการการบันทึกและโหลดโปรเจกต์ (Project Save/Load System)
  */
 
 let currentProjectName = "Untitled Project";
 let currentProjectPath = null;
 
-// --- Create project data ---
+/**
+ * รวบรวมข้อมูลปัจจุบันในระบบเพื่อสร้างออบเจกต์สำหรับจัดเก็บ
+ */
 function createProjectData() {
+  const currentOpt = document.getElementById("current-map-option");
   return {
-    version: "1.0",
+    version: "1.1",
     timestamp: new Date().toISOString(),
     projectName: currentProjectName,
     canvas: {
@@ -20,6 +23,7 @@ function createProjectData() {
       imageData: canvasArea.style.backgroundImage
         .replace(/^url\(['"]?/, "")
         .replace(/['"]?\)$/, ""),
+      fileName: currentOpt ? currentOpt.dataset.filename : "",
     },
     sensors: sensors.map((s) => ({
       id: s.id,
@@ -37,8 +41,11 @@ function createProjectData() {
   };
 }
 
+/**
+ * บันทึกโปรเจกต์ปัจจุบันลงเครื่องคอมพิวเตอร์เป็นไฟล์ .json
+ */
 function saveProjectAs() {
-  const projectName = prompt("Enter project name", currentProjectName);
+  const projectName = prompt("กรุณาใส่ชื่อโปรเจกต์", currentProjectName);
   if (!projectName) return;
 
   currentProjectName = projectName;
@@ -48,22 +55,28 @@ function saveProjectAs() {
   const jsonString = JSON.stringify(projectData, null, 2);
   const blob = new Blob([jsonString], { type: "application/json" });
   const url = URL.createObjectURL(blob);
+
   const a = document.createElement("a");
   a.href = url;
   a.download = currentProjectPath;
   a.click();
   URL.revokeObjectURL(url);
 
-  logToConsole(`Project saved as: ${currentProjectPath}`, "info");
-  updateStatusBar();
+  logToConsole(`บันทึกโปรเจกต์เรียบร้อย: ${currentProjectPath}`, "info");
+  // updateStatusBar();
 }
 
-// --- Open project ---
+/**
+ * เปิดหน้าต่างเลือกไฟล์เพื่อโหลดโปรเจกต์
+ */
 function openProject() {
   document.getElementById("file-input").click();
 }
 
-// --- Load project ---
+/**
+ * อ่านข้อมูลจากไฟล์ที่เลือกและนำเข้าสู่ระบบ
+ * @param {HTMLInputElement} inputElement
+ */
 function loadProject(inputElement) {
   if (!inputElement.files || !inputElement.files[0]) return;
 
@@ -73,13 +86,13 @@ function loadProject(inputElement) {
   reader.onload = (e) => {
     try {
       const projectData = JSON.parse(e.target.result);
-      applyProjectData(projectData); // ใช้ฟังก์ชันกลางที่เราสร้างใหม่
+      applyProjectData(projectData);
       currentProjectPath = file.name;
 
-      logToConsole(`Project loaded: ${file.name}`, "info");
-      updateStatusBar();
+      logToConsole(`โหลดโปรเจกต์เรียบร้อย: ${file.name}`, "info");
+      // updateStatusBar();
     } catch (error) {
-      logToConsole(`Error loading project: ${error.message}`, "error");
+      logToConsole(`เกิดข้อผิดพลาดในการโหลดไฟล์: ${error.message}`, "error");
     }
   };
 
@@ -87,21 +100,13 @@ function loadProject(inputElement) {
   inputElement.value = "";
 }
 
-// --- Update status bar ---
-function updateStatusBar() {
-  const status = currentProjectPath
-    ? `Project: ${currentProjectName}`
-    : "Ready";
-  statusDiv.innerText = status;
-}
-// --- ฟังก์ชันสำหรับนำข้อมูล Project Data มาแสดงผลในระบบ ---
-// --- ฟังก์ชันสำหรับนำข้อมูล Project Data มาคืนค่าในระบบ ---
 function applyProjectData(projectData) {
   if (!projectData || !projectData.sourceCode) return;
 
+  // หยุดการทำงานของโปรแกรมเดิมก่อนโหลดข้อมูลใหม่
   stopProgram();
 
-  // 1. ตั้งค่าพื้นผิว (Canvas & Map)
+  // 1. ตั้งค่าพื้นผิวและขนาดแคนวาส
   const mapSelect = document.getElementById("map-select");
   const currentOpt = document.getElementById("current-map-option");
 
@@ -117,10 +122,9 @@ function applyProjectData(projectData) {
     canvasArea.style.backgroundImage = `url('${projectData.map.imageData}')`;
     canvasArea.style.backgroundColor = "transparent";
 
-    // ปรับ UI Dropdown ให้เป็น Current และแสดงชื่อไฟล์ (ถ้ามี)
     if (currentOpt) {
       const fileName = projectData.map.fileName || "Project Map";
-      currentOpt.textContent = `Current: ${fileName}`;
+      currentOpt.textContent = `แผนที่ปัจจุบัน: ${fileName}`;
       currentOpt.dataset.filename = fileName;
       if (mapSelect) mapSelect.value = "current";
     }
@@ -129,11 +133,11 @@ function applyProjectData(projectData) {
     canvasArea.style.backgroundImage = "none";
     canvasArea.style.backgroundColor = "#f0f0f0";
     if (mapSelect) mapSelect.value = "default";
-    if (currentOpt) currentOpt.textContent = "No map loaded";
+    if (currentOpt) currentOpt.textContent = "ไม่ได้โหลดแผนที่";
     updateCanvasImageData();
   }
 
-  // 2. คืนค่า Sensors
+  // 2. คืนค่าเซนเซอร์
   sensors = projectData.sensors.map((s) => ({
     id: s.id,
     x: s.x,
@@ -145,19 +149,24 @@ function applyProjectData(projectData) {
   renderSensorsList();
   updateSensorDots();
 
-  // 3. คืนค่า Code ใน Editor
+  // 3. คืนค่ารหัสต้นฉบับใน Editor
   if (editor) editor.setValue(projectData.sourceCode);
 
-  // 4. คืนค่าสถานะหุ่นยนต์
+  // 4. คืนค่าสถานะของหุ่นยนต์
   robotX = projectData.robotState.x || 100;
   robotY = projectData.robotState.y || 100;
   angle = projectData.robotState.angle || 0;
   motorPos = projectData.robotState.motorPos || 0;
   updateRobotDOM();
   updateMotorPostion();
+
   currentProjectName = projectData.projectName || "Untitled Project";
-  updateStatusBar();
+  // updateStatusBar();
 }
+
+/**
+ * ระบบบันทึกอัตโนมัติลงใน Web Storage
+ */
 const STORAGE_KEY = "robot_sim_autosave";
 
 function updateMotorPostion() {
@@ -170,32 +179,10 @@ function updateMotorPostion() {
   );
 }
 
-function createProjectData() {
-  const currentOpt = document.getElementById("current-map-option");
-  return {
-    version: "1.1",
-    projectName: currentProjectName,
-    canvas: {
-      width: document.getElementById("canvas-w").value,
-      height: document.getElementById("canvas-h").value,
-    },
-    map: {
-      type: canvasArea.style.backgroundImage === "none" ? "default" : "custom",
-      imageData: canvasArea.style.backgroundImage
-        .replace(/^url\(['"]?/, "")
-        .replace(/['"]?\)$/, ""),
-      fileName: currentOpt ? currentOpt.dataset.filename : "", // เก็บชื่อไฟล์ไว้ด้วย
-    },
-    sensors: sensors.map((s) => ({ id: s.id, x: s.x, y: s.y, name: s.name })),
-    sourceCode: editor.getValue(),
-    robotState: { x: robotX, y: robotY, angle: angle, motorPos: motorPos },
-  };
-}
-
 function autoSaveToWebStorage() {
   const data = createProjectData();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  console.log("Autosaved to WebStorage");
+  console.log("บันทึกข้อมูลอัตโนมัติเรียบร้อย");
 }
 
 function loadFromWebStorage() {
@@ -203,82 +190,64 @@ function loadFromWebStorage() {
   if (saved) {
     try {
       applyProjectData(JSON.parse(saved));
-      logToConsole("Session restored from auto-save.", "info");
+      logToConsole("กู้คืนสถานะเดิมจากการบันทึกอัตโนมัติ", "info");
     } catch (e) {
-      console.error(e);
+      console.error("การโหลดจาก WebStorage ล้มเหลว:", e);
     }
   }
 }
 
-function loadProject(inputElement) {
-  if (!inputElement.files || !inputElement.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-      applyProjectData(data); // ใช้ฟังก์ชันกลาง
-      logToConsole(`Project loaded: ${inputElement.files[0].name}`, "info");
-    } catch (err) {
-      logToConsole("Load Error: " + err.message, "error");
-    }
-  };
-  reader.readAsText(inputElement.files[0]);
-}
-// --- 9. New Project ---
+/**
+ * เริ่มโปรเจกต์ใหม่และล้างข้อมูลทั้งหมด
+ */
 function newProject() {
   if (
     confirm(
-      "สร้างโปรเจกต์ใหม่ใช่หรือไม่? ข้อมูลที่ไม่ได้เซฟเป็นไฟล์จะหายไปทั้งหมด",
+      "สร้างโปรเจกต์ใหม่ใช่หรือไม่? ข้อมูลที่ไม่ได้บันทึกเป็นไฟล์จะหายไปทั้งหมด",
     )
   ) {
-    // 1. หยุดการรันโปรแกรมปัจจุบันก่อน
     stopProgram();
 
-    // 2. ล้างค่าใน LocalStorage (ใช้ Key ให้ตรงกับที่ Auto-save ใช้)
-    localStorage.removeItem("robot_sim_autosave");
+    // ล้างข้อมูลใน LocalStorage
+    localStorage.removeItem(STORAGE_KEY);
 
-    // 3. รีเซ็ตตัวแปร Project
+    // รีเซ็ตตัวแปรพื้นฐาน
     currentProjectName = "Untitled Project";
     currentProjectPath = null;
 
-    // 4. รีเซ็ตโค้ดใน Editor (ใส่ Template เริ่มต้น)
-    // if (window.editor) {
-    //   const defaultCode = ["log('Robot Start')", "motor(0, 0);"].join("\n");
-    //   window.editor.setValue(defaultCode);
-    // }
-
-    // 5. รีเซ็ตตำแหน่งหุ่นยนต์และมุม
+    // รีเซ็ตตำแหน่งหุ่นยนต์
     robotX = 100;
     robotY = 100;
     angle = 0;
     motorPos = 0;
     updateRobotDOM();
 
-    // 6. รีเซ็ตแผนที่ (กลับไปเป็น Default)
+    // รีเซ็ตแผนที่กลับเป็นค่าเริ่มต้น
     canvasArea.style.backgroundImage = "none";
     canvasArea.style.backgroundColor = "#f0f0f0";
     const mapSelect = document.getElementById("map-select");
     const currentOpt = document.getElementById("current-map-option");
     if (mapSelect) mapSelect.value = "default";
     if (currentOpt) {
-      currentOpt.textContent = "No map loaded";
+      currentOpt.textContent = "ไม่ได้โหลดแผนที่";
       currentOpt.dataset.filename = "";
     }
     updateCanvasImageData();
 
-    // 7. รีเซ็ต Sensors
-    sensors = []; // ล้างอาเรย์เซนเซอร์
+    // ล้างข้อมูลเซนเซอร์
+    sensors = [];
     updateSensorPreview();
     renderSensorsList();
     updateSensorDots();
 
-    // 8. ล้าง Console
     clearConsole();
+    // updateStatusBar();
+    logToConsole("สร้างโปรเจกต์ใหม่สำเร็จ", "info");
 
-    // 9. อัปเดต Status Bar
-    updateStatusBar();
-    logToConsole("New project created successfully.", "info");
+    // รีโหลดหน้าเว็บเพื่อเริ่มใหม่ทั้งหมด
     location.reload();
   }
 }
-setTimeout(updateStatusBar, 100);
+
+// หน่วงเวลาการเรียกสถานะเริ่มต้นเล็กน้อย
+// setTimeout(updateStatusBar, 100);

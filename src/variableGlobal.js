@@ -1,22 +1,44 @@
-// --- 3. Global State Variables ---
+/**
+ * ตัวแปรสถานะส่วนกลาง (Global State Variables)
+ * ใช้สำหรับจัดเก็บค่าพื้นฐานที่ทุกส่วนของโปรแกรมต้องเข้าถึงร่วมกัน
+ */
 
+// --- 1. การอ้างอิง Element ใน DOM ---
+// ตัวแทนหุ่นยนต์ (SVG/Div) ในหน้าเว็บ
 const robot = document.getElementById("robot");
+// พื้นที่แคนวาสหรือสนามจำลอง
 const canvasArea = document.getElementById("canvas-area");
-const statusDiv = document.getElementById("status");
 
+// --- 2. สถานะตำแหน่งและทิศทางของหุ่นยนต์ ---
+// พิกัด X, Y ในแนวแกนพิกเซล
 let robotX = 100,
-  robotY = 100,
-  angle = 0;
+  robotY = 100;
+// มุมการหันของหุ่นยนต์ (หน่วยเป็นองศา: 0-359)
+let angle = 0;
+// ระยะเยื้องของแกนมอเตอร์จากจุดกึ่งกลางตัวหุ่นยนต์ (Offset)
 let motorPos = 0;
 
-((motorL = 0), (motorR = 0));
+// --- 3. สถานะการทำงานของมอเตอร์ ---
+// ความเร็วล้อซ้ายและขวา (ค่าระหว่าง -100 ถึง 100 หรือตามที่กำหนด)
+let motorL = 0,
+  motorR = 0;
 
-let isRunning = false,
-  isDragging = false,
-  myInterpreter = null;
+// --- 4. สถานะการรันโปรแกรมและอินเตอร์เฟซ ---
+// ตรวจสอบว่าโปรแกรมจำลองกำลังทำงานอยู่หรือไม่
+let isRunning = false;
+// ตรวจสอบว่าผู้ใช้กำลังลากวางตัวหุ่นยนต์อยู่หรือไม่
+let isDragging = false;
+// ตัวแปรสำหรับเก็บ Instance ของ JS-Interpreter เพื่อรันโค้ดของผู้ใช้
+let myInterpreter = null;
 
+// --- 5. ระบบเซนเซอร์ ---
+// อาเรย์สำหรับจัดเก็บออบเจกต์เซนเซอร์ที่ถูกติดตั้ง
 let sensors = [];
+// จำนวนเซนเซอร์สูงสุดที่อนุญาตให้ติดตั้งได้
 const MAX_SENSORS = 25;
 
+// --- 6. ข้อมูลภาพสำหรับประมวลผลเซนเซอร์ ---
+// ข้อมูล ImageData ทั้งหมดจากแคนวาส
 let canvasImageData = null;
+// ข้อมูลพิกเซลดิบ (Uint8ClampedArray) เพื่อใช้ตรวจจับสีบนเส้นทาง
 let canvasPixelData = null;
