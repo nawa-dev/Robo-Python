@@ -1,39 +1,60 @@
 # 🤖 Robo-JS
 
-<img width="1919" height="904" alt="image" src="https://github.com/user-attachments/assets/9a616a00-e935-4d67-ad6c-5ff9e5b611f1" />
+A web-based **2D robot programming simulator** that allows users to control a robot using **JavaScript**, designed for learning, experimentation, and education.
 
-เว็บจำลองการเขียนโปรแกรมควบคุมหุ่นยนต์ ด้วยภาษา Javascript
+![Robot Simulator Screenshot](https://github.com/user-attachments/assets/9a616a00-e935-4d67-ad6c-5ff9e5b611f1)
 
-![Robot Simulator](https://img.shields.io/badge/Status-Active-brightgreen)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 ![JavaScript](https://img.shields.io/badge/Language-JavaScript-yellow)
 
-## ✨ ฟีเจอร์
+---
 
-- **จำลองการทำงานของหุ่นยนต์แบบ 2D ทั้งการเคลื่อนที่และการหมุน**
-- **รองรับ เซนเซอร์วัดความเข้มแสงสูงสุด 25 ตัว และ ปุ่มกดอีก 3 ปุ่ม**
-- **ควบคุมมอเตอร์ทั้ง 2 ทาง โดยสามารถกำหนดความเร็วได้ตั้งแต่ 0 - 100**
-- **เปลี่ยนสนาม และกำหนดขนาดสนามได้**
-- **ส่งออก / นำเข้าโปรเจคได้ด้วยไฟล์รูปแบบ Json**
-- **หน้าต่างสำหรับ Debug**
-- **รองรับการกดลาก - วาง หุ่นยนต์ทั้งที่หยุดและกำลังเคลื่อนที่**
+## ✨ Features
 
-### 🚀ทดลองใช้งาน
+- **2D robot simulation** with movement and rotation
+- **Up to 25 light intensity sensors** and **3 push buttons**
+- **Independent control of left and right motors** with speed range from `-100` to `100`
+- **Customizable fields** (change field type and size)
+- **Import / Export projects** using JSON files
+- **Built-in debug console**
+- **Drag & drop the robot** while stopped or even while running
 
-1. ดาวโหลดน์ไฟล์ `sampleSetup.json`
-2. เปิดเว็บไซต์ `https://nawa-dev.github.io/Robot-IDE-Simulator/`
-3. เลือก **File -> Open**
-4. เลือก `sampleSetup.json`
-5. กด **Run**
+---
 
-### 📟คำสั่งพื้นฐาน
+## 🚀 Try It Out
 
-| **คำสั่ง**           | **คำอธิบาย**                                             |
-| -------------------- | -------------------------------------------------------- |
-| `motor(left, right)` | สั่งงานมอเตอร์ล้อซ้ายและขวา (-100 ถึง 100)               |
-| `analogRead(index)`  | อ่านค่าความเข้มแสงจากเซนเซอร์ตัวที่ระบุ (0-1024)         |
-| `getSensorCount()`   | คืนค่าจำนวนเซนเซอร์ทั้งหมดที่มี                          |
-| `SW(n)`              | เช็คสถานะการกดปุ่ม SW1, SW2 หรือ SW3 (คืนค่า true/false) |
-| `waitSW(n)`          | หยุดรอจนกว่าปุ่มที่ระบุจะถูกกด                           |
-| `delay(ms)`          | หน่วงเวลาการทำงาน (หน่วยมิลลิวินาที)                     |
-| `log(text)`          | แสดงข้อความออกทางหน้าจอ Console                          |
+1. Download the file `sampleSetup.json`
+2. Open the website:  
+   👉 https://nawa-dev.github.io/Robot-IDE-Simulator/
+3. Go to **File → Open**
+4. Select `sampleSetup.json`
+5. Click **Run**
+
+---
+
+## 📟 Basic Commands
+
+| Command              | Description                                                       |
+| -------------------- | ----------------------------------------------------------------- |
+| `motor(left, right)` | Control left and right wheel motors (`-100` to `100`)             |
+| `analogRead(index)`  | Read light intensity from a specific sensor (`0 - 1024`)          |
+| `getSensorCount()`   | Returns the total number of sensors                               |
+| `SW(n)`              | Check the state of button `SW1`, `SW2`, or `SW3` (`true / false`) |
+| `waitSW(n)`          | Pause execution until the specified button is pressed             |
+| `delay(ms)`          | Delay execution (milliseconds)                                    |
+| `log(text)`          | Output text to the console                                        |
+
+---
+
+## 🧠 Example Code
+
+```javascript
+while (true) {
+  if (analogRead(0) > 500) {
+    motor(50, 50);
+  } else {
+    motor(0, 0);
+  }
+}
+```
