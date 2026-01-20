@@ -88,6 +88,11 @@ function resetPosition() {
   logToConsole("Robot position reset.", "info");
 }
 
+// Expose functions to global scope for HTML buttons
+window.runCode = runCode;
+window.stopProgram = stopProgram;
+window.resetPosition = resetPosition;
+
 /* =========================
  * Skulpt Module Loader
  * ========================= */
