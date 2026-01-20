@@ -100,6 +100,33 @@ function loadProject(inputElement) {
   inputElement.value = "";
 }
 
+/**
+ * โหลดโปรเจกต์ตัวอย่างจากไฟล์ sampleSetup.json
+ */
+function loadExampleProject() {
+  if (
+    confirm(
+      "โหลดตัวอย่างโปรเจกต์? ข้อมูลปัจจุบันที่ยังไม่บันทึกจะหายไป",
+    )
+  ) {
+    fetch("./sampleSetup.json")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        applyProjectData(data);
+        logToConsole("โหลดโปรเจกต์ตัวอย่างเรียบร้อย", "info");
+      })
+      .catch((error) => {
+        console.error("Error loading example:", error);
+        logToConsole(`โหลดตัวอย่างล้มเหลว: ${error.message}`, "error");
+      });
+  }
+}
+
 function applyProjectData(projectData) {
   if (!projectData || !projectData.sourceCode) return;
 

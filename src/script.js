@@ -17,14 +17,16 @@ require(["vs/editor/editor.main"], function () {
   // });
   editor = monaco.editor.create(document.getElementById("monaco-container"), {
     value: [
-      "print('Robot Start')",
-      "while True:",
-      "    motor(60, 60)",
-      "    delay(200)",
-      "    motor(60, -60)",
-      "    delay(100)",
-      "",
-      "motor(0, 0)",
+    "print('Robot Start')",
+    "",
+    "while True:",
+    "    motor(60, 60)",
+    "    delay(200)",
+    "",
+    "    motor(60, -60)",
+    "    delay(50)",
+    "",
+    "motor(0, 0)",
     ].join("\n"),
     language: "python",
     theme: "vs-dark",
@@ -169,7 +171,8 @@ function setupAutocomplete() {
       insertText: "delay(${1:milliseconds})",
       insertTextRules:
         monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      documentation: "Pause program for specified milliseconds (e.g. 1000 = 1s)",
+      documentation:
+        "Pause program for specified milliseconds (e.g. 1000 = 1s)",
       detail: "delay(ms) -> void",
     },
   ];
