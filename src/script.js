@@ -11,22 +11,22 @@ require.config({
   },
 });
 require(["vs/editor/editor.main"], function () {
-  monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-    lib: ["es5"], // Array, Math, Object, String
-    allowNonTsExtensions: true,
-  });
+  // monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+  //   lib: ["es5"], // Array, Math, Object, String
+  //   allowNonTsExtensions: true,
+  // });
   editor = monaco.editor.create(document.getElementById("monaco-container"), {
     value: [
-      "log('Robot Start')",
-      "while (1){",
-      "  motor(60,60)",
-      "  delay(200)",
-      "  motor(60,-60)",
-      "  delay(50)",
-      "}",
-      "motor(0, 0);",
+      "print('Robot Start')",
+      "while True:",
+      "    motor(60, 60)",
+      "    delay(200)",
+      "    motor(60, -60)",
+      "    delay(100)",
+      "",
+      "motor(0, 0)",
     ].join("\n"),
-    language: "javascript",
+    language: "python",
     theme: "vs-dark",
     automaticLayout: true,
     fontSize: 16,
@@ -40,7 +40,7 @@ require(["vs/editor/editor.main"], function () {
 // ตั้งค่าการไฮไลต์สำหรับ Robot API
 function setupRobotHighlighting(editor) {
   const robotRegex =
-    /\b(motor|delay|analogRead|getSensorCount|log)|SW|waitSW\b/g;
+    /\b(motor|delay|sleep|analogRead|getSensorCount|print)|SW|waitSW\b/g;
   let decorationIds = [];
 
   function updateDecorations() {
@@ -62,7 +62,7 @@ function setupRobotHighlighting(editor) {
       const lineContent = model.getLineContent(start.lineNumber).trim();
 
       // ถ้าบรรทัดเริ่มต้นด้วย // หรือบรรทัดว่าง ให้ข้ามไป
-      if (lineContent.startsWith("//") || lineContent.length === 0) {
+      if (lineContent.startsWith("#") || lineContent.length === 0) {
         continue;
       }
 
@@ -147,15 +147,34 @@ function setupAutocomplete() {
     {
       label: "waitSW",
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "waitSW(${1:n});",
+      // Python style: waitSW(n)
+      insertText: "waitSW(${1:n})",
       insertTextRules:
         monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      detail: "(n) -> void",
-      documentation: "หยุดรอการทำงานของโปรแกรมจนกว่าปุ่มที่ระบุจะถูกกด",
+      detail: "waitSW(n) -> void",
+      documentation: "Pause program until button n is pressed",
+    },
+    {
+      label: "print",
+      kind: monaco.languages.CompletionItemKind.Function,
+      insertText: "print(${1:message})",
+      insertTextRules:
+        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      documentation: "Print message to console",
+      detail: "print(message) -> void",
+    },
+    {
+      label: "delay",
+      kind: monaco.languages.CompletionItemKind.Function,
+      insertText: "delay(${1:milliseconds})",
+      insertTextRules:
+        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      documentation: "Pause program for specified milliseconds (e.g. 1000 = 1s)",
+      detail: "delay(ms) -> void",
     },
   ];
 
-  monaco.languages.registerCompletionItemProvider("javascript", {
+  monaco.languages.registerCompletionItemProvider("python", {
     provideCompletionItems: (model, position) => {
       return {
         suggestions: robotAPI,
