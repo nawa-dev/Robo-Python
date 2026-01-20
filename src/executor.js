@@ -56,7 +56,7 @@ function runCode() {
       }
     })
     .catch((err) => {
-      if (err.toString() === "StopExecution") {
+      if (err.toString().includes("StopExecution")) {
         logToConsole("Program stopped.", "info");
       } else {
         logToConsole("Runtime Error: " + err.toString(), "error");
