@@ -7,7 +7,7 @@
 let editor;
 require.config({
   paths: {
-    vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs",
+    vs: "src/cdn_file/monaco-editor/min/vs",
   },
 });
 require(["vs/editor/editor.main"], function () {
