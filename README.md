@@ -1,4 +1,4 @@
-# 🤖 Robo-Python (Formerly Robo-JS)
+# 🤖 Robo-Python
 
 A web-based **2D robot programming simulator** that allows users to control a robot using **Python**, designed for learning, experimentation, and education.
 
