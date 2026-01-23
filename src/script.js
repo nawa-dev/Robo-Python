@@ -5,35 +5,91 @@
 
 // ส่วนที่ 1: Monaco Editor Setup
 let editor;
+let currentFontSize = 16;
+
 require.config({
   paths: {
     vs: "src/cdn_file/monaco-editor/min/vs",
   },
 });
+
 require(["vs/editor/editor.main"], function () {
-  // monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-  //   lib: ["es5"], // Array, Math, Object, String
-  //   allowNonTsExtensions: true,
-  // });
   editor = monaco.editor.create(document.getElementById("monaco-container"), {
     value: [
-    "print('Robot Start')",
-    "",
-    "while True:",
-    "    motor(60, 60)",
-    "    delay(200)",
-    "",
-    "    motor(60, -60)",
-    "    delay(50)",
-    "",
-    "motor(0, 0)",
+      "print('Robot Start')",
+      "",
+      "while True:",
+      "    motor(60, 60)",
+      "    delay(200)",
+      "",
+      "    motor(60, -60)",
+      "    delay(50)",
+      "",
+      "motor(0, 0)",
     ].join("\n"),
     language: "python",
     theme: "vs-dark",
     automaticLayout: true,
-    fontSize: 16,
+    fontSize: currentFontSize,
     minimap: { enabled: false },
   });
+
+  // ✅ ซูมเฉพาะ Monaco (Ctrl + Scroll)
+  editor.onMouseWheel((e) => {
+    // ✅ ใช้ ctrlKey ของ Monaco event
+    if (!e.ctrlKey) return;
+
+    e.preventDefault?.(); // เผื่อ browser รองรับ
+    e.stopPropagation?.();
+
+    if (e.deltaY < 0) {
+      currentFontSize += 1;
+    } else {
+      currentFontSize -= 1;
+    }
+
+    currentFontSize = Math.max(10, Math.min(30, currentFontSize));
+
+    editor.updateOptions({
+      fontSize: currentFontSize,
+    });
+  });
+  editor.addCommand(
+    monaco.KeyMod.CtrlCmd | monaco.KeyCode.Equal, // Ctrl +
+    () => {
+      zoomIn();
+    },
+  );
+
+  editor.addCommand(
+    monaco.KeyMod.CtrlCmd | monaco.KeyCode.Minus, // Ctrl -
+    () => {
+      zoomOut();
+    },
+  );
+
+  editor.addCommand(
+    monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit0, // Ctrl 0
+    () => {
+      resetZoom();
+    },
+  );
+
+  // ================= Zoom Functions =================
+  function zoomIn() {
+    currentFontSize = Math.min(30, currentFontSize + 1);
+    editor.updateOptions({ fontSize: currentFontSize });
+  }
+
+  function zoomOut() {
+    currentFontSize = Math.max(10, currentFontSize - 1);
+    editor.updateOptions({ fontSize: currentFontSize });
+  }
+
+  function resetZoom() {
+    currentFontSize = 16;
+    editor.updateOptions({ fontSize: currentFontSize });
+  }
 
   setupRobotHighlighting(editor);
   setupAutocomplete();
