@@ -32,32 +32,12 @@ A web-based **2D robot programming simulator** that allows users to control a ro
 
 ## 📟 Python API Reference
 
-| Command | Description |
-| :--- | :--- |
-| `motor(left, right)` | Control left and right wheel motors. Speed range: `-100` to `100`. |
-| `delay(ms)` | Pause execution for the specified milliseconds (e.g., `delay(1000)` for 1 second). |
-| `analogRead(index)` | Read light intensity from a specific sensor (`0 - 1024`). `0` = Left, `1` = Right, etc. |
-| `SW(n)` | Check the state of button `SW1`, `SW2`, or `SW3`. Returns `True` if pressed, else `False`. |
-| `waitSW(n)` | Pause program execution until the specified button (`1`, `2`, or `3`) is pressed. |
-| `print(message)` | Print text or values to the simulator console. |
-| `getSensorCount()` | Returns the total number of active sensors on the robot. |
-
-> **Note:** The `robot` module and `time` module are automatically imported, so you can use these functions directly!
-
----
-
-## 🧠 Example Code
-
-### Basic Movement
-```python
-print("Robot Starting...")
-
-# Move forward at speed 60
-motor(60, 60)
-delay(1000)
-
-# Stop
-motor(0, 0)
-print("Finished")
-```
-
+| Command              | Description                                                                                |
+| :------------------- | :----------------------------------------------------------------------------------------- |
+| `motor(left, right)` | Control left and right wheel motors. Speed range: `-100` to `100`.                         |
+| `delay(ms)`          | Pause execution for the specified milliseconds (e.g., `delay(1000)` for 1 second).         |
+| `analogRead(index)`  | Read light intensity from a specific sensor (`0 - 1024`). `0` = Left, `1` = Right, etc.    |
+| `SW(n)`              | Check the state of button `SW1`, `SW2`, or `SW3`. Returns `True` if pressed, else `False`. |
+| `waitSW(n)`          | Pause program execution until the specified button (`1`, `2`, or `3`) is pressed.          |
+| `print(message)`     | Print text or values to the simulator console.                                             |
+| `getSensorCount()`   | Returns the total number of active sensors on the robot.                                   |
