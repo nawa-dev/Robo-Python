@@ -17,6 +17,17 @@
       gtag("js", new Date());
 
       gtag("config", "G-4NYTPP2TN9");
+
+      // Helper for GA4 events
+      function trackEvent(action, category, label) {
+        if (typeof gtag === "function") {
+          gtag("event", action, {
+            event_category: category,
+            event_label: label,
+          });
+          console.log(`[Tracking] ${action} - ${category}:${label}`);
+        }
+      }
     </script>
     <link rel="icon" type="image/png" sizes="512x512" href="src/img/icon.png" />
     <link rel="stylesheet" href="style/base.css" />
@@ -61,29 +72,29 @@
           </button>
 
           <div class="dropdown-content">
-            <a href="javascript:void(0)" onclick="newProject()">
+            <a href="javascript:void(0)" onclick="newProject(); trackEvent('click', 'FileMenu', 'New')">
               <i class="fas fa-file"></i> New
             </a>
-            <a href="javascript:void(0)" onclick="openProject()">
+            <a href="javascript:void(0)" onclick="openProject(); trackEvent('click', 'FileMenu', 'Open')">
               <i class="fas fa-folder-open"></i> Open
             </a>
-            <a href="javascript:void(0)" onclick="saveProjectAs()">
+            <a href="javascript:void(0)" onclick="saveProjectAs(); trackEvent('click', 'FileMenu', 'Export')">
               <i class="fas fa-download"></i> Export
             </a>
             <!-- <div class="separator"></div> -->
-            <a href="javascript:void(0)" onclick="loadExampleProject()">
+            <a href="javascript:void(0)" onclick="loadExampleProject(); trackEvent('click', 'FileMenu', 'Example')">
               <i class="fas fa-lightbulb"></i> Example
             </a>
           </div>
         </div>
         <div class="separator"></div>
-        <button id="run-btn" class="btn-run" onclick="runCode()">
+        <button id="run-btn" class="btn-run" onclick="runCode(); trackEvent('click', 'Toolbar', 'Run')">
           <i class="fas fa-play"></i> Run
         </button>
-        <button id="stop-btn" class="btn-stop" onclick="stopProgram()">
+        <button id="stop-btn" class="btn-stop" onclick="stopProgram(); trackEvent('click', 'Toolbar', 'Stop')">
           <i class="fas fa-stop"></i> Stop
         </button>
-        <button id="reset-btn" class="btn-reset" onclick="resetPosition()">
+        <button id="reset-btn" class="btn-reset" onclick="resetPosition(); trackEvent('click', 'Toolbar', 'Reset')">
           <i class="fas fa-undo"></i> Reset
         </button>
         <div class="separator"></div>
@@ -91,7 +102,7 @@
         <button
           id="robot-settings-btn"
           class="btn-tool"
-          onclick="openRobotSettings()"
+          onclick="openRobotSettings(); trackEvent('click', 'Toolbar', 'SensorSettings')"
         >
           <i class="fa-solid fa-gear"></i> Sensor
         </button>
@@ -141,7 +152,7 @@
 
           <!-- Map selector -->
           <label for="map-select">Map:</label>
-          <select id="map-select" onchange="handleMapSelectChange(this)">
+          <select id="map-select" onchange="handleMapSelectChange(this); trackEvent('change', 'Settings', 'MapSelect:' + this.value)">
             <option value="default">Default Map</option>
             <option value="current" id="current-map-option" data-filename="">
               No map loaded
@@ -183,7 +194,7 @@
             <span>Console</span>
 
             <button
-              onclick="clearConsole()"
+              onclick="clearConsole(); trackEvent('click', 'Console', 'Clear')"
               style="padding: 2px 8px; font-size: 10px"
             >
               Clear
@@ -201,20 +212,20 @@
           <div class="button-sensor-group">
             <div class="button-div">
               <label for="" style="margin: 0px">SW1</label>
-              <button id="button1" class="sensor-btn" title="Button 2">
-                <img src="src/img/button.png" alt="btn2" />
+              <button id="button1" class="sensor-btn" title="Button 1" onclick="trackEvent('click', 'Input', 'SW1')">
+                <img src="src/img/button.png" alt="btn1" />
               </button>
             </div>
             <div class="button-div">
               <label for="" style="margin: 0px">SW2</label>
-              <button id="button2" class="sensor-btn" title="Button 2">
+              <button id="button2" class="sensor-btn" title="Button 2" onclick="trackEvent('click', 'Input', 'SW2')">
                 <img src="src/img/button.png" alt="btn2" />
               </button>
             </div>
             <div class="button-div">
               <label for="" style="margin: 0px">SW3</label>
-              <button id="button3" class="sensor-btn" title="Button 2">
-                <img src="src/img/button.png" alt="btn2" />
+              <button id="button3" class="sensor-btn" title="Button 3" onclick="trackEvent('click', 'Input', 'SW3')">
+                <img src="src/img/button.png" alt="btn3" />
               </button>
             </div>
           </div>
