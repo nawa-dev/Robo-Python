@@ -90,6 +90,41 @@ require(["vs/editor/editor.main"], function () {
     currentFontSize = 16;
     editor.updateOptions({ fontSize: currentFontSize });
   }
+  editor.addAction({
+    id: "zoom-in",
+    label: "Zoom In",
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Equal],
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 1,
+    run: function () {
+      currentFontSize = Math.min(30, currentFontSize + 1);
+      editor.updateOptions({ fontSize: currentFontSize });
+    },
+  });
+
+  editor.addAction({
+    id: "zoom-out",
+    label: "Zoom Out",
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Minus],
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 2,
+    run: function () {
+      currentFontSize = Math.max(10, currentFontSize - 1);
+      editor.updateOptions({ fontSize: currentFontSize });
+    },
+  });
+
+  editor.addAction({
+    id: "zoom-reset",
+    label: "Reset Zoom",
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit0],
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 3,
+    run: function () {
+      currentFontSize = 16;
+      editor.updateOptions({ fontSize: currentFontSize });
+    },
+  });
 
   setupRobotHighlighting(editor);
   setupAutocomplete();
